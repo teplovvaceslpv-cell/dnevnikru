@@ -1,0 +1,80 @@
+define('blocks/localizationSelect/localizationSelect', function () {
+
+    return function (model) {
+        var id = model.id,
+            doc = document,
+            wrapper = doc.getElementById(id),
+            select = wrapper.getElementsByClassName('localization-select__select')[0],
+            arrow = wrapper.getElementsByClassName('localization-select__wrapper')[0],
+            list = wrapper.getElementsByClassName('localization-list')[0],
+            options = list.getElementsByClassName('localization-list__item'),
+            mouseOnList,
+            setCookie = function (cname, cvalue, exdays, domain) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                document.cookie = cname + '=' + cvalue + ';expires=' + d.toUTCString() + ';domain=' + domain + ';path=/';
+            },
+            optionHandler = function () {
+                console.log('element.mousedown');
+
+                _.each(options, function (element) {
+                    element.classList.remove('localization-list__item_hidden');
+                });
+
+                var oldValue = wrapper.getElementsByClassName('localization-select__text')[0],
+                    newValue = this.getElementsByClassName('localization-select__text')[0].cloneNode(true);
+                oldValue.parentNode.replaceChild(newValue, oldValue);
+                this.classList.add('localization-list__item_hidden');
+
+                list.classList.remove('localization-list_active');
+
+                var value = this.getAttribute('data-value');
+
+                var selected = select.querySelectorAll('option[value="' + value + '"]')[0];
+                selected.setAttribute('selected', 'selected');
+
+                setCookie(model.localizationCookieName, value, 30, model.localizationCookieDomain);
+                location.reload();
+            };
+
+            arrow.addEventListener('mousedown', function (e) {
+                list.classList.toggle('localization-list_active');
+                setTimeout(function() {
+                  select.focus();
+                },0);
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            arrow.addEventListener('touchend', function (e) {
+              if (list.classList.contains('localization-list_active')){
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            });
+
+            list.addEventListener('mouseover', function () {
+                mouseOnList = true;
+            });
+
+            list.addEventListener('mouseout', function () {
+                mouseOnList = false;
+            });
+
+            select.addEventListener('blur', function (e) {
+                if (!mouseOnList) {
+                    list.classList.remove('localization-list_active');
+                } else {
+                    setTimeout(function() {
+                      select.focus();
+                    },0);
+                }
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            _.each(options, function (element) {
+                element.addEventListener('mousedown', optionHandler);
+            });
+        };
+});

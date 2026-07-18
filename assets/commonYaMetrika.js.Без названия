@@ -1,0 +1,24 @@
+/* globals URLSearchParams */
+/* eslint-disable */
+define('analytics/commonYaMetrika', ['analytics/yaMetrikaTracker'], function (tracker) {
+  'use strict';
+  if (!dnevnik.user) {
+    return;
+  }
+  function getSchoolId(school) {
+    return school.id;
+  }
+  var urlParams = new URLSearchParams(window.location.search);  
+  var school = urlParams.get('school') || urlParams.get('schoolId') || (dnevnik.user.schools || []).map(getSchoolId).join(' ');
+  var role = dnevnik.user.commonRole || '';
+  var userinfo = (dnevnik.user.sex || 'unknown') + ' ' + dnevnik.user.age;
+
+  var params = {};
+  params.UserInfo = {};
+  params.UserInfo[school] = {};
+  params.UserInfo[school][dnevnik.user.id] = {};
+  params.UserInfo[school][dnevnik.user.id][role] = {};
+  params.UserInfo[school][dnevnik.user.id][role][userinfo] = null;
+
+  tracker.params(params);
+});
