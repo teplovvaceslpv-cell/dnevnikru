@@ -1,3 +1,0 @@
-telethon
-telegraph
-telebot
